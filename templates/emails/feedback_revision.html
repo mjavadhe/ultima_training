@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>Feedback Revision Requested</h2>
+    <p>Hi {{ feedback.enrollment.student.get_full_name }},</p>
+    <p>Please revise your feedback for <strong>{{ feedback.enrollment.course.name }}</strong>.</p>
+    {% if feedback.review_comments %}
+      <p>Comments: {{ feedback.review_comments }}</p>
+    {% endif %}
+  </body>
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>Your Certificate is Ready</h2>
+    <p>Hi {{ certificate.enrollment.student.get_full_name }},</p>
+    <p>Your certificate for <strong>{{ certificate.enrollment.course.name }}</strong> is ready.</p>
+    <p>
+      <a href="{{ certificate.certificate_file.url }}">Download Certificate</a>
+    </p>
+    <p>Certificate Number: <strong>{{ certificate.certificate_number }}</strong></p>
+  </body>
+</html>

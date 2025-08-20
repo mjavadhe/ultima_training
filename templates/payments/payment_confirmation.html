@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>Payment Confirmation</h2>
+    <p>Hi {{ payment.enrollment.student.get_full_name }},</p>
+    <p>Your payment for <strong>{{ payment.enrollment.course.name }}</strong> has been received.</p>
+    <p>Amount: <strong>{{ payment.amount }} {{ payment.currency }}</strong></p>
+    <p>Thank you for your purchase.</p>
+  </body>
+</html>

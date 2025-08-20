@@ -1,5 +1,5 @@
 # branding/views.py
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -79,10 +79,8 @@ def contact_view(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            # Send email notification
             from .tasks import send_contact_notification
             send_contact_notification.delay(form.cleaned_data)
-            
             messages.success(request, 'Your message has been sent successfully!')
             return redirect('contact')
     else:
@@ -96,10 +94,8 @@ def speaking_request(request):
     if request.method == 'POST':
         form = SpeakingRequestForm(request.POST)
         if form.is_valid():
-            # Send email notification
             from .tasks import send_speaking_request_notification
             send_speaking_request_notification.delay(form.cleaned_data)
-            
             messages.success(request, 'Your speaking request has been submitted successfully!')
             return redirect('homepage')
     else:

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Speaking Request - Ultima Training{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Speaking Engagement Request</h1>
+
+  <div class="card bg-dark border-secondary">
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+            {{ form.name }} {{ form.name.errors }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }} {{ form.email.errors }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.company.id_for_label }}">Company</label>
+            {{ form.company }} {{ form.company.errors }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.event_type.id_for_label }}">Event Type</label>
+            {{ form.event_type }} {{ form.event_type.errors }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.event_date.id_for_label }}">Event Date</label>
+            {{ form.event_date }} {{ form.event_date.errors }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.audience_size.id_for_label }}">Audience Size</label>
+            {{ form.audience_size }} {{ form.audience_size.errors }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.location.id_for_label }}">Location</label>
+            {{ form.location }} {{ form.location.errors }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.budget_range.id_for_label }}">Budget Range</label>
+            {{ form.budget_range }} {{ form.budget_range.errors }}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="{{ form.topics.id_for_label }}">Topics</label>
+            {{ form.topics }} {{ form.topics.errors }}
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="{{ form.additional_requirements.id_for_label }}">Additional Requirements (optional)</label>
+            {{ form.additional_requirements }} {{ form.additional_requirements.errors }}
+          </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button type="submit" class="btn btn-purple">
+            <i class="fas fa-paper-plane me-2"></i>Submit Request
+          </button>
+          <a href="{% url 'homepage' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

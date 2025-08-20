@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>Enrollment Approved</h2>
+    <p>Hi {{ enrollment.student.get_full_name }},</p>
+    <p>Your enrollment for <strong>{{ enrollment.course.name }}</strong> has been approved.</p>
+    <p>See you on {{ enrollment.session.start_datetime|date:"M d, Y H:i" }}.</p>
+  </body>
+</html>

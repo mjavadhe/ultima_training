@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Payment - Ultima Training{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card bg-dark border-secondary">
+        <div class="card-header bg-purple">
+          <h3 class="card-title mb-0">
+            <i class="fab fa-paypal me-2"></i>
+            Complete Your Payment
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="payment-summary mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">{{ enrollment.course.name }}</h5>
+                <small>
+                  <i class="fas fa-calendar me-1"></i>{{ enrollment.session.start_datetime|date:"M d, Y H:i" }}
+                  &nbsp;|&nbsp;
+                  <i class="fas fa-map-marker-alt me-1"></i>{{ enrollment.session.location|default:"Online" }}
+                </small>
+              </div>
+              <div class="text-end">
+                <div>Total</div>
+                <div class="fs-4 fw-bold">{{ payment.amount }} {{ payment.currency }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            This is a placeholder checkout page. Integrate PayPal/Stripe on production.
+          </div>
+
+          <div class="d-grid gap-2">
+            <button class="btn btn-success btn-lg" disabled>
+              <i class="fas fa-lock me-2"></i>Proceed to PayPal (demo)
+            </button>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

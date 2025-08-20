@@ -17,18 +17,24 @@ from courses.models import Enrollment
 def generate_certificate(enrollment_id):
     try:
         enrollment = Enrollment.objects.get(id=enrollment_id)
-        
-        # Generate certificate
+
+        # Generate certificate number first
+        cert_num = Certificate().generate_certificate_number()
+
+        # Prepare QR data (use cert_num here)
+        qr_payload = {
+            'student_name': enrollment.student.get_full_name(),
+            'course_name': enrollment.course.name,
+            'completion_date': enrollment.completion_date.isoformat() if enrollment.completion_date else None,
+            'certificate_number': cert_num,
+            'mobile': enrollment.student.mobile,
+        }
+
+        # Create certificate record
         certificate = Certificate.objects.create(
             enrollment=enrollment,
-            certificate_number=Certificate().generate_certificate_number(),
-            qr_data={
-                'student_name': enrollment.student.get_full_name(),
-                'course_name': enrollment.course.name,
-                'completion_date': enrollment.completion_date.isoformat() if enrollment.completion_date else None,
-                'certificate_number': certificate.certificate_number,
-                'mobile': enrollment.student.mobile,
-            }
+            certificate_number=cert_num,
+            qr_data=qr_payload
         )
         
         # Generate QR code
@@ -51,30 +57,29 @@ def generate_certificate(enrollment_id):
         pdf_buffer = BytesIO()
         p = canvas.Canvas(pdf_buffer, pagesize=letter)
         
-        # Certificate design
         width, height = letter
         
         # Title
         p.setFont("Helvetica-Bold", 24)
         p.drawCentredString(width/2, height-100, "CERTIFICATE OF COMPLETION")
         
-        # Ultima Training logo area
+        # Logo area
         p.setFont("Helvetica-Bold", 16)
         p.drawCentredString(width/2, height-140, "ULTIMA TRAINING")
         
-        # Student name
+        # Student
         p.setFont("Helvetica-Bold", 18)
         p.drawCentredString(width/2, height-200, f"This certifies that")
         p.setFont("Helvetica-Bold", 20)
         p.drawCentredString(width/2, height-230, enrollment.student.get_full_name())
         
-        # Course info
+        # Course
         p.setFont("Helvetica", 14)
         p.drawCentredString(width/2, height-270, f"has successfully completed the course")
         p.setFont("Helvetica-Bold", 16)
         p.drawCentredString(width/2, height-300, enrollment.course.name)
         
-        # Date and location
+        # Dates and location
         p.setFont("Helvetica", 12)
         completion_date = enrollment.completion_date.strftime('%B %d, %Y') if enrollment.completion_date else 'N/A'
         p.drawCentredString(width/2, height-340, f"Completed on: {completion_date}")
@@ -91,7 +96,7 @@ def generate_certificate(enrollment_id):
         p.drawString(400, 150, enrollment.course.instructor.get_full_name())
         p.drawString(400, 130, "Course Instructor")
         
-        # QR Code (placeholder - in real implementation, you'd embed the actual QR image)
+        # Placeholder for QR code box (not embedding image into PDF in this demo)
         p.drawString(width-150, 100, "QR Code")
         p.rect(width-150, 120, 100, 100, stroke=1, fill=0)
         

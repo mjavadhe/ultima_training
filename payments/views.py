@@ -1,4 +1,3 @@
-
 # payments/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -6,6 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.utils import timezone
 import json
 
 from courses.models import Enrollment
@@ -59,7 +59,6 @@ def iranian_payment_complete(request, payment_id):
     if form.is_valid():
         rahgiri_code = form.cleaned_data['rahgiri_code']
         
-        # Validate Rahgiri code (implement your validation logic)
         if validate_rahgiri_code(rahgiri_code, payment.amount):
             payment.rahgiri_code = rahgiri_code
             payment.status = 'completed'
@@ -70,7 +69,6 @@ def iranian_payment_complete(request, payment_id):
             payment.enrollment.status = 'enrolled'
             payment.enrollment.save()
             
-            # Send confirmation email
             from .tasks import send_payment_confirmation_email
             send_payment_confirmation_email.delay(payment.id)
             
@@ -95,7 +93,6 @@ def validate_rahgiri_code(rahgiri_code, amount):
     Implement your Rahgiri code validation logic here
     This should connect to the Iranian banking system API
     """
-    # Placeholder implementation
     return len(rahgiri_code) >= 10
 
 @csrf_exempt
@@ -109,11 +106,9 @@ def paypal_webhook(request):
         event_type = data.get('event_type')
         
         if event_type == 'PAYMENT.CAPTURE.COMPLETED':
-            # Extract payment information
             payment_id = data['resource']['id']
             amount = float(data['resource']['amount']['value'])
             
-            # Find corresponding payment
             try:
                 payment = Payment.objects.get(
                     transaction_id=payment_id,
@@ -123,11 +118,9 @@ def paypal_webhook(request):
                 payment.payment_date = timezone.now()
                 payment.save()
                 
-                # Update enrollment
                 payment.enrollment.status = 'enrolled'
                 payment.enrollment.save()
                 
-                # Send confirmation email
                 from .tasks import send_payment_confirmation_email
                 send_payment_confirmation_email.delay(payment.id)
                 

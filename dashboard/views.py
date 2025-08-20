@@ -1,13 +1,15 @@
 # dashboard/views.py
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.utils import timezone
+from django.contrib import messages
+from django.contrib.auth import get_user_model
 
 from courses.models import Enrollment, Course
 from certificates.models import Certificate
-from accounts.models import User
 
+User = get_user_model()
 
 @login_required
 def student_dashboard(request):
@@ -18,14 +20,14 @@ def student_dashboard(request):
         student=user,
         status__in=['pending', 'enrolled'],
         session__start_datetime__gte=timezone.now()
-    ).select_related('course', 'session').prefetch_related('certificate')
+    ).select_related('course', 'session')
     
     # Pending feedback courses
     pending_feedback = Enrollment.objects.filter(
         student=user,
         status='completed',
         feedback__isnull=True
-    ).select_related('course', 'session').prefetch_related('certificate')
+    ).select_related('course', 'session')
     
     # Completed courses with certificates
     completed_enrollments = Enrollment.objects.filter(
@@ -33,12 +35,13 @@ def student_dashboard(request):
         status='completed',
         feedback__isnull=False,
         feedback__is_approved=True
-    ).select_related('course', 'session').prefetch_related('certificate')
+    ).select_related('course', 'session')
     
     context = {
         'registered_enrollments': registered_enrollments,
         'pending_feedback': pending_feedback,
         'completed_enrollments': completed_enrollments,
+        'now': timezone.now(),
     }
     
     return render(request, 'dashboard/student_dashboard.html', context)
@@ -49,18 +52,15 @@ def instructor_dashboard(request):
         messages.error(request, 'Access denied.')
         return redirect('student_dashboard')
     
-    # Instructor's courses
     courses = Course.objects.filter(
         Q(instructor=request.user) | Q(co_instructor=request.user)
     )
     
-    # Pending approvals
     pending_approvals = Enrollment.objects.filter(
         course__in=courses,
         status='pending'
     ).select_related('student', 'course', 'session')
     
-    # Pending feedback reviews
     pending_reviews = Enrollment.objects.filter(
         course__in=courses,
         feedback__is_approved=False,
@@ -80,7 +80,6 @@ def admin_dashboard(request):
         messages.error(request, 'Access denied.')
         return redirect('student_dashboard')
     
-    # Admin stats
     user_count = User.objects.count()
     enrollment_count = Enrollment.objects.count()
     

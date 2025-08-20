@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>Enrollment Update</h2>
+    <p>Hi {{ enrollment.student.get_full_name }},</p>
+    <p>Unfortunately your enrollment for <strong>{{ enrollment.course.name }}</strong> was not approved.</p>
+    {% if enrollment.rejection_reason %}
+      <p>Reason: {{ enrollment.rejection_reason }}</p>
+    {% endif %}
+  </body>
+</html>
