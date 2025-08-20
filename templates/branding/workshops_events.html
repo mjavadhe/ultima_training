@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Workshops & Events</h1>
+
+    {% if events %}
+        <ul class="list-group">
+            {% for event in events %}
+                <li class="list-group-item">
+                    <h5>{{ event.title }}</h5>
+                    <p>{{ event.description|truncatewords:30 }}</p>
+                    <small>
+                        {{ event.start_datetime|date:"M d, Y H:i" }} - 
+                        {{ event.end_datetime|date:"M d, Y H:i" }}
+                    </small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No events available.</p>
+    {% endif %}
+
+    <div class="mt-3">
+        {% if events.has_previous %}
+            <a href="?page={{ events.previous_page_number }}">Previous</a>
+        {% endif %}
+        <span>Page {{ events.number }} of {{ events.paginator.num_pages }}</span>
+        {% if events.has_next %}
+            <a href="?page={{ events.next_page_number }}">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

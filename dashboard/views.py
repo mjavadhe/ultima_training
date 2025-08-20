@@ -6,6 +6,8 @@ from django.utils import timezone
 
 from courses.models import Enrollment, Course
 from certificates.models import Certificate
+from accounts.models import User
+
 
 @login_required
 def student_dashboard(request):

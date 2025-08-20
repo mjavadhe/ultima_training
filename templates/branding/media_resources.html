@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Media & Resources - Ultima Training{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap align-items-end justify-content-between mb-4">
+    <h1 class="mb-3 mb-md-0">Media & Resources</h1>
+    <form method="get" class="row g-2">
+      <div class="col-auto">
+        <select name="type" class="form-select">
+          <option value="">All Types</option>
+          <option value="video" {% if request.GET.type == 'video' %}selected{% endif %}>Video</option>
+          <option value="pdf" {% if request.GET.type == 'pdf' %}selected{% endif %}>PDF</option>
+          <option value="image" {% if request.GET.type == 'image' %}selected{% endif %}>Image</option>
+          <option value="linkedin_post" {% if request.GET.type == 'linkedin_post' %}selected{% endif %}>LinkedIn Post</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <input type="text" name="category" class="form-control" placeholder="Category"
+               value="{{ request.GET.category|default_if_none:'' }}">
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-purple" type="submit">
+          <i class="fas fa-filter me-2"></i>Filter
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% if resources %}
+    <div class="row">
+      {% for resource in resources %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="media-resource-card position-relative h-100">
+            <span class="badge bg-primary resource-type-badge">
+              {{ resource.get_resource_type_display }}
+            </span>
+
+            {% if resource.file %}
+              {% if resource.resource_type == 'image' %}
+                <img src="{{ resource.file.url }}" class="w-100" style="height:180px; object-fit:cover;" alt="{{ resource.title }}">
+              {% else %}
+                <div class="p-5 text-center text-muted">File: {{ resource.file.name|default:'(no name)' }}</div>
+              {% endif %}
+            {% elif resource.external_url %}
+              <div class="p-5 text-center text-muted">
+                External: {{ resource.external_url|truncatechars:40 }}
+              </div>
+            {% else %}
+              <div class="p-5 text-center text-muted">No preview available</div>
+            {% endif %}
+
+            <div class="p-3">
+              <h5 class="mb-1">{{ resource.title }}</h5>
+              {% if resource.category %}
+                <small class="text-muted d-block mb-2">
+                  <i class="fas fa-tag me-1"></i>{{ resource.category }}
+                </small>
+              {% endif %}
+              {% if resource.description %}
+                <p class="text-muted">{{ resource.description|truncatewords:25 }}</p>
+              {% endif %}
+
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                  <i class="far fa-clock me-1"></i>{{ resource.created_at|date:"M d, Y" }}
+                </small>
+                {% if resource.file %}
+                  <a class="btn btn-sm btn-outline-light" href="{{ resource.file.url }}" target="_blank" rel="noopener">
+                    <i class="fas fa-download me-1"></i>Open
+                  </a>
+                {% elif resource.external_url %}
+                  <a class="btn btn-sm btn-outline-light" href="{{ resource.external_url }}" target="_blank" rel="noopener">
+                    <i class="fas fa-external-link-alt me-1"></i>Open
+                  </a>
+                {% else %}
+                  <span class="text-muted small">No link</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+      <h4 class="text-muted">No resources found</h4>
+      <p class="text-muted">Try changing the filters.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
