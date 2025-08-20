@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+  <h1>Instructor Dashboard</h1>
+  <h2>Pending Approvals</h2>
+  {% for enrollment in pending_approvals %}
+    <p>{{ enrollment.student }} - {{ enrollment.course }}</p>
+  {% endfor %}
+  <h2>Pending Feedback Reviews</h2>
+  {% for feedback in pending_reviews %}
+    <p>{{ feedback.enrollment.course }}</p>
+  {% endfor %}
+</div>
+{% endblock %}

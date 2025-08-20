@@ -1,9 +1,9 @@
-
 # branding/views.py
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from .models import Testimonial, MediaResource, Event
 from .forms import ContactForm, SpeakingRequestForm
@@ -48,7 +48,7 @@ def workshops_events(request):
 
 def testimonials_view(request):
     """Testimonials page"""
-    testimonials = Testimonial.objects.filter(is_approved=True).order_by('-created_at')
+    testimonials = Testimonial.objects.filter(is_approved=True).order_by('-created_at').prefetch_related('student', 'course')
     
     paginator = Paginator(testimonials, 12)
     page_number = request.GET.get('page')

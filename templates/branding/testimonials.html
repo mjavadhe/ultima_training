@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+  <h1>Testimonials</h1>
+  {% for testimonial in testimonials %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>{{ testimonial.student_name }}</h5>
+        <p>{{ testimonial.content }}</p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,4 +1,3 @@
-
 # accounts/views.py
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -32,6 +31,14 @@ def profile_view(request):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
+            profile_picture = form.cleaned_data.get('profile_picture')
+            if profile_picture:
+                if profile_picture.size > 2 * 1024 * 1024:  # 2MB limit
+                    messages.error(request, 'Profile picture too large.')
+                    return render(request, 'accounts/profile.html', {'form': form})
+                if not profile_picture.content_type.startswith('image/'):
+                    messages.error(request, 'Invalid image format.')
+                    return render(request, 'accounts/profile.html', {'form': form})
             form.save()
             messages.success(request, 'Profile updated successfully!')
             return redirect('profile')

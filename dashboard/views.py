@@ -1,4 +1,3 @@
-
 # dashboard/views.py
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -17,14 +16,14 @@ def student_dashboard(request):
         student=user,
         status__in=['pending', 'enrolled'],
         session__start_datetime__gte=timezone.now()
-    ).select_related('course', 'session')
+    ).select_related('course', 'session').prefetch_related('certificate')
     
     # Pending feedback courses
     pending_feedback = Enrollment.objects.filter(
         student=user,
         status='completed',
         feedback__isnull=True
-    ).select_related('course', 'session')
+    ).select_related('course', 'session').prefetch_related('certificate')
     
     # Completed courses with certificates
     completed_enrollments = Enrollment.objects.filter(
@@ -32,7 +31,7 @@ def student_dashboard(request):
         status='completed',
         feedback__isnull=False,
         feedback__is_approved=True
-    ).select_related('course', 'session', 'certificate')
+    ).select_related('course', 'session').prefetch_related('certificate')
     
     context = {
         'registered_enrollments': registered_enrollments,
@@ -62,17 +61,15 @@ def instructor_dashboard(request):
     # Pending feedback reviews
     pending_reviews = Enrollment.objects.filter(
         course__in=courses,
-        status='completed',
-        feedback__isnull=False,
-        feedback__is_approved=False
-    ).select_related('student', 'course', 'feedback')
+        feedback__is_approved=False,
+        feedback__isnull=False
+    ).select_related('feedback', 'course')
     
     context = {
         'courses': courses,
         'pending_approvals': pending_approvals,
         'pending_reviews': pending_reviews,
     }
-    
     return render(request, 'dashboard/instructor_dashboard.html', context)
 
 @login_required
@@ -81,17 +78,12 @@ def admin_dashboard(request):
         messages.error(request, 'Access denied.')
         return redirect('student_dashboard')
     
-    # Admin statistics
-    total_students = User.objects.filter(user_type='student').count()
-    total_courses = Course.objects.filter(is_active=True).count()
-    total_enrollments = Enrollment.objects.filter(status='enrolled').count()
-    pending_approvals = Enrollment.objects.filter(status='pending').count()
+    # Admin stats
+    user_count = User.objects.count()
+    enrollment_count = Enrollment.objects.count()
     
     context = {
-        'total_students': total_students,
-        'total_courses': total_courses,
-        'total_enrollments': total_enrollments,
-        'pending_approvals': pending_approvals,
+        'user_count': user_count,
+        'enrollment_count': enrollment_count,
     }
-    
     return render(request, 'dashboard/admin_dashboard.html', context)

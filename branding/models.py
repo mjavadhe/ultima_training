@@ -2,12 +2,13 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
+from courses.models import Course
 
 User = get_user_model()
 
 class Testimonial(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='testimonials')
-    course = models.ForeignKey('courses.Course', on_delete=models.CASCADE, related_name='testimonials')
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='testimonials', db_index=True)
+    course = models.ForeignKey('courses.Course', on_delete=models.CASCADE, related_name='testimonials', db_index=True)
     
     rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     content = models.TextField()
@@ -27,6 +28,10 @@ class Testimonial(models.Model):
     
     def __str__(self):
         return f"Testimonial by {self.student_name}"
+    
+    def save(self, *args, **kwargs):
+        self.student_name = self.student.get_full_name()
+        super().save(*args, **kwargs)
 
 class MediaResource(models.Model):
     RESOURCE_TYPES = (

@@ -2,6 +2,9 @@
 from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 @shared_task
 def send_contact_notification(form_data):
@@ -26,7 +29,7 @@ def send_contact_notification(form_data):
             [settings.ADMIN_EMAIL],
         )
     except Exception as e:
-        print(f"Error sending contact notification: {e}")
+        logger.exception(f"Error sending contact notification: {e}")
 
 @shared_task
 def send_speaking_request_notification(form_data):
@@ -58,4 +61,4 @@ def send_speaking_request_notification(form_data):
             [settings.ADMIN_EMAIL],
         )
     except Exception as e:
-        print(f"Error sending speaking request notification: {e}")
+        logger.exception(f"Error sending speaking request notification: {e}")

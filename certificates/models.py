@@ -26,3 +26,8 @@ class Certificate(models.Model):
         import random
         import string
         return 'CERT-' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    
+    def save(self, *args, **kwargs):
+        if not self.certificate_number:
+            self.certificate_number = self.generate_certificate_number()
+        super().save(*args, **kwargs)

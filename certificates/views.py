@@ -1,4 +1,3 @@
-
 # certificates/views.py
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -16,6 +15,9 @@ def download_certificate(request, certificate_id):
         enrollment__student=request.user,
         is_valid=True
     )
+    
+    if certificate.enrollment.student != request.user:
+        raise Http404("Access denied")
     
     if not certificate.certificate_file:
         raise Http404("Certificate file not found")

@@ -9,12 +9,12 @@ from io import BytesIO
 from django.core.files import File
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from django.utils import timezone
+from .models import Certificate
+from courses.models import Enrollment
 
 @shared_task
 def generate_certificate(enrollment_id):
-    from courses.models import Enrollment
-    from .models import Certificate
-    
     try:
         enrollment = Enrollment.objects.get(id=enrollment_id)
         
@@ -56,32 +56,32 @@ def generate_certificate(enrollment_id):
         
         # Title
         p.setFont("Helvetica-Bold", 24)
-        p.drawCentredText(width/2, height-100, "CERTIFICATE OF COMPLETION")
+        p.drawCentredString(width/2, height-100, "CERTIFICATE OF COMPLETION")
         
         # Ultima Training logo area
         p.setFont("Helvetica-Bold", 16)
-        p.drawCentredText(width/2, height-140, "ULTIMA TRAINING")
+        p.drawCentredString(width/2, height-140, "ULTIMA TRAINING")
         
         # Student name
         p.setFont("Helvetica-Bold", 18)
-        p.drawCentredText(width/2, height-200, f"This certifies that")
+        p.drawCentredString(width/2, height-200, f"This certifies that")
         p.setFont("Helvetica-Bold", 20)
-        p.drawCentredText(width/2, height-230, enrollment.student.get_full_name())
+        p.drawCentredString(width/2, height-230, enrollment.student.get_full_name())
         
         # Course info
         p.setFont("Helvetica", 14)
-        p.drawCentredText(width/2, height-270, f"has successfully completed the course")
+        p.drawCentredString(width/2, height-270, f"has successfully completed the course")
         p.setFont("Helvetica-Bold", 16)
-        p.drawCentredText(width/2, height-300, enrollment.course.name)
+        p.drawCentredString(width/2, height-300, enrollment.course.name)
         
         # Date and location
         p.setFont("Helvetica", 12)
         completion_date = enrollment.completion_date.strftime('%B %d, %Y') if enrollment.completion_date else 'N/A'
-        p.drawCentredText(width/2, height-340, f"Completed on: {completion_date}")
-        p.drawCentredText(width/2, height-360, f"Location: {enrollment.session.location}")
+        p.drawCentredString(width/2, height-340, f"Completed on: {completion_date}")
+        p.drawCentredString(width/2, height-360, f"Location: {enrollment.session.location}")
         
         # Certificate number
-        p.drawCentredText(width/2, height-400, f"Certificate Number: {certificate.certificate_number}")
+        p.drawCentredString(width/2, height-400, f"Certificate Number: {certificate.certificate_number}")
         
         # Signatures
         p.setFont("Helvetica", 10)
@@ -112,8 +112,6 @@ def generate_certificate(enrollment_id):
 
 @shared_task
 def send_certificate_email(certificate_id):
-    from .models import Certificate
-    
     try:
         certificate = Certificate.objects.get(id=certificate_id)
         

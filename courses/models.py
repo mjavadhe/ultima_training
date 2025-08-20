@@ -121,6 +121,11 @@ class Enrollment(models.Model):
         import random
         import string
         return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    
+    def save(self, *args, **kwargs):
+        if not self.tracking_number:
+            self.tracking_number = self.generate_tracking_number()
+        super().save(*args, **kwargs)
 
 class Feedback(models.Model):
     enrollment = models.OneToOneField(Enrollment, on_delete=models.CASCADE, related_name='feedback')
