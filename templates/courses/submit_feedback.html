@@ -1,0 +1,320 @@
+# templates/courses/submit_feedback.html
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submit Feedback - {{ enrollment.course.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-purple">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-comment-alt me-2"></i>
+                        Course Feedback
+                    </h3>
+                    <p class="mb-0 mt-2">{{ enrollment.course.name }}</p>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="feedbackForm">
+                        {% csrf_token %}
+                        
+                        <!-- Overall Rating -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Overall Course Rating</label>
+                                <div class="star-rating" data-rating="overall_rating">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="overall_rating" id="overall_rating">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Instructor Effectiveness</label>
+                                <div class="star-rating" data-rating="instructor_rating">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="instructor_rating" id="instructor_rating">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Course Content Quality</label>
+                                <div class="star-rating" data-rating="content_rating">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="content_rating" id="content_rating">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Venue/Platform Rating</label>
+                                <div class="star-rating" data-rating="venue_rating">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="venue_rating" id="venue_rating">
+                            </div>
+                        </div>
+
+                        <!-- Text Feedback -->
+                        <div class="mb-3">
+                            <label for="overall_experience" class="form-label">Overall Experience</label>
+                            <textarea class="form-control" id="overall_experience" name="overall_experience" 
+                                      rows="4" maxlength="500" 
+                                      placeholder="Please describe your overall experience with this course..."></textarea>
+                            <div class="form-text">Maximum 500 characters</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="key_takeaways" class="form-label">Key Takeaways</label>
+                            <textarea class="form-control" id="key_takeaways" name="key_takeaways" 
+                                      rows="3" 
+                                      placeholder="What were the most valuable things you learned?"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="improvements" class="form-label">Suggestions for Improvement</label>
+                            <textarea class="form-control" id="improvements" name="improvements" 
+                                      rows="3" 
+                                      placeholder="What could be improved in future sessions?"></textarea>
+                        </div>
+
+                        <!-- Recommendation -->
+                        <div class="mb-3">
+                            <label class="form-label">Would you recommend this course?</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="would_recommend" 
+                                       id="recommend_yes" value="True">
+                                <label class="form-check-label" for="recommend_yes">Yes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="would_recommend" 
+                                       id="recommend_no" value="False">
+                                <label class="form-check-label" for="recommend_no">No</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recommendation_comment" class="form-label">Recommendation Comment</label>
+                            <textarea class="form-control" id="recommendation_comment" name="recommendation_comment" 
+                                      rows="2" 
+                                      placeholder="Please explain your recommendation..."></textarea>
+                        </div>
+
+                        <!-- Testimonial Permission -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="allow_testimonial" 
+                                       id="allow_testimonial">
+                                <label class="form-check-label" for="allow_testimonial">
+                                    I give permission to use my feedback as a testimonial on the website
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                                <i class="fas fa-save me-2"></i>Save Draft
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-2"></i>Submit for Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.star-rating {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.star-rating i {
+    font-size: 24px;
+    color: #6c757d;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star-rating i:hover,
+.star-rating i.active {
+    color: #ffc107;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Star rating functionality
+document.querySelectorAll('.star-rating').forEach(rating => {
+    const stars = rating.querySelectorAll('i');
+    const fieldName = rating.dataset.rating;
+    const hiddenInput = document.getElementById(fieldName);
+    
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            const value = index + 1;
+            hiddenInput.value = value;
+            
+            // Update visual state
+            stars.forEach((s, i) => {
+                if (i < value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseover', () => {
+            stars.forEach((s, i) => {
+                if (i <= index) {
+                    s.style.color = '#ffc107';
+                } else {
+                    s.style.color = '#6c757d';
+                }
+            });
+        });
+    });
+    
+    rating.addEventListener('mouseleave', () => {
+        const currentValue = parseInt(hiddenInput.value) || 0;
+        stars.forEach((s, i) => {
+            if (i < currentValue) {
+                s.style.color = '#ffc107';
+            } else {
+                s.style.color = '#6c757d';
+            }
+        });
+    });
+});
+
+// Character counter
+document.getElementById('overall_experience').addEventListener('input', function() {
+    const maxLength = 500;
+    const currentLength = this.value.length;
+    const remaining = maxLength - currentLength;
+    
+    let helpText = this.parentElement.querySelector('.form-text');
+    helpText.textContent = `${remaining} characters remaining`;
+    
+    if (remaining < 50) {
+        helpText.classList.add('text-warning');
+    } else {
+        helpText.classList.remove('text-warning');
+    }
+});
+
+// Save draft functionality
+function saveDraft() {
+    const formData = new FormData(document.getElementById('feedbackForm'));
+    
+    // Save to sessionStorage
+    const draftData = {};
+    for (let [key, value] of formData.entries()) {
+        draftData[key] = value;
+    }
+    
+    sessionStorage.setItem('feedback_draft_{{ enrollment.id }}', JSON.stringify(draftData));
+    
+    // Show confirmation
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+    alertDiv.innerHTML = `
+        Draft saved successfully!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+
+// Load draft on page load
+window.addEventListener('load', function() {
+    const draftData = sessionStorage.getItem('feedback_draft_{{ enrollment.id }}');
+    if (draftData) {
+        const data = JSON.parse(draftData);
+        
+        Object.keys(data).forEach(key => {
+            const field = document.querySelector(`[name="${key}"]`);
+            if (field) {
+                if (field.type === 'radio') {
+                    const radio = document.querySelector(`[name="${key}"][value="${data[key]}"]`);
+                    if (radio) radio.checked = true;
+                } else if (field.type === 'checkbox') {
+                    field.checked = data[key] === 'on';
+                } else {
+                    field.value = data[key];
+                    
+                    // Update star ratings
+                    if (key.includes('rating')) {
+                        const rating = document.querySelector(`[data-rating="${key}"]`);
+                        if (rating) {
+                            const stars = rating.querySelectorAll('i');
+                            const value = parseInt(data[key]);
+                            stars.forEach((s, i) => {
+                                if (i < value) {
+                                    s.classList.add('active');
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+
+// Form validation
+document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+    const requiredRatings = ['overall_rating', 'instructor_rating', 'content_rating', 'venue_rating'];
+    let isValid = true;
+    
+    requiredRatings.forEach(rating => {
+        const value = document.getElementById(rating).value;
+        if (!value || value === '0') {
+            isValid = false;
+            const ratingDiv = document.querySelector(`[data-rating="${rating}"]`);
+            ratingDiv.style.border = '2px solid #dc3545';
+            ratingDiv.style.borderRadius = '5px';
+            ratingDiv.style.padding = '5px';
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        alert('Please provide ratings for all categories before submitting.');
+        return;
+    }
+    
+    // Clear draft after successful submission
+    sessionStorage.removeItem('feedback_draft_{{ enrollment.id }}');
+});
+</script>
+{% endblock %}

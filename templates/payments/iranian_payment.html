@@ -1,0 +1,157 @@
+# templates/payments/iranian_payment.html
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment - Ultima Training{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-purple">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Complete Your Payment
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Order Summary -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>Order Summary</h5>
+                            <div class="card bg-secondary">
+                                <div class="card-body">
+                                    <h6>{{ enrollment.course.name }}</h6>
+                                    <p class="mb-1">
+                                        <i class="fas fa-calendar me-2"></i>
+                                        {{ enrollment.session.start_datetime|date:"M d, Y H:i" }}
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-map-marker-alt me-2"></i>
+                                        {{ enrollment.session.location }}
+                                    </p>
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <strong>Total Amount:</strong>
+                                        <strong>{{ payment.amount }} IRR</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Instructions -->
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Payment Instructions
+                        </h5>
+                        <p>Please transfer the amount using your mobile banking to the following account:</p>
+                        <div class="text-center p-3 bg-light text-dark rounded">
+                            <h4><strong>xxxx-xxxx-xxxx-xxxx</strong></h4>
+                            <p class="mb-0">Account Holder: Ultima Training</p>
+                        </div>
+                        <p class="mt-3 mb-0">After completing the payment, enter your Rahgiri Code below to confirm your registration.</p>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <form id="iranianPaymentForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="rahgiriCode" class="form-label">
+                                Rahgiri Code <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="rahgiriCode" name="rahgiri_code" 
+                                   placeholder="Enter your Rahgiri Code" required>
+                            <div class="form-text">This code is provided by your bank after successful payment.</div>
+                        </div>
+
+                        <!-- Session Timer -->
+                        <div class="alert alert-warning">
+                            <i class="fas fa-clock me-2"></i>
+                            Session expires in: <strong id="sessionTimer">5:00</strong> minutes
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg" id="completePaymentBtn">
+                                <i class="fas fa-check me-2"></i>
+                                Complete Registration
+                            </button>
+                            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Session timer
+let timeLeft = 300; // 5 minutes in seconds
+const timerElement = document.getElementById('sessionTimer');
+
+function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (timeLeft <= 0) {
+        alert('Session expired. Please start the payment process again.');
+        window.location.href = '{% url "student_dashboard" %}';
+        return;
+    }
+    
+    timeLeft--;
+}
+
+setInterval(updateTimer, 1000);
+
+// Payment form submission
+document.getElementById('iranianPaymentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const rahgiriCode = document.getElementById('rahgiriCode').value;
+    const submitBtn = document.getElementById('completePaymentBtn');
+    
+    if (!rahgiriCode.trim()) {
+        alert('Please enter your Rahgiri Code');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+    
+    fetch('{% url "iranian_payment_complete" payment.id %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: `rahgiri_code=${encodeURIComponent(rahgiriCode)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            window.location.href = data.redirect_url;
+        } else {
+            alert(data.message);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Complete Registration';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Complete Registration';
+    });
+});
+</script>
+{% endblock %}

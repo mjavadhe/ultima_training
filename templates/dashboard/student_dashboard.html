@@ -1,0 +1,197 @@
+# templates/dashboard/student_dashboard.html
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard - Ultima Training{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                Welcome back, {{ user.get_full_name }}
+            </h1>
+        </div>
+    </div>
+
+    <!-- Registered Courses -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-purple">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Upcoming Courses
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if registered_enrollments %}
+                        <div class="row">
+                            {% for enrollment in registered_enrollments %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card bg-secondary">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ enrollment.course.name }}</h5>
+                                            <p class="card-text">
+                                                <i class="fas fa-calendar me-2"></i>
+                                                {{ enrollment.session.start_datetime|date:"M d, Y" }}
+                                            </p>
+                                            <p class="card-text">
+                                                <i class="fas fa-map-marker-alt me-2"></i>
+                                                {{ enrollment.session.location }}
+                                            </p>
+                                            <span class="badge bg-{{ enrollment.status|yesno:'success,warning' }} mb-2">
+                                                {{ enrollment.get_status_display }}
+                                            </span>
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-outline-light btn-sm" 
+                                                        onclick="showCourseDetails('{{ enrollment.id }}')">
+                                                    View Details
+                                                </button>
+                                                {% if enrollment.session.start_datetime > now %}
+                                                    <a href="{% url 'cancel_enrollment' enrollment.id %}" 
+                                                       class="btn btn-outline-danger btn-sm">
+                                                        Cancel Registration
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No upcoming courses</h4>
+                            <p class="text-muted">Browse our courses and register for your next learning adventure!</p>
+                            <a href="{% url 'course_list' %}" class="btn btn-purple">Browse Courses</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Feedback -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-comment-alt me-2"></i>
+                        Awaiting Your Feedback
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if pending_feedback %}
+                        <div class="row">
+                            {% for enrollment in pending_feedback %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card bg-secondary">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ enrollment.course.name }}</h5>
+                                            <p class="card-text">
+                                                <i class="fas fa-calendar-check me-2"></i>
+                                                Completed: {{ enrollment.completion_date|date:"M d, Y" }}
+                                            </p>
+                                            <div class="d-grid">
+                                                <a href="{% url 'submit_feedback' enrollment.id %}" 
+                                                   class="btn btn-warning text-dark">
+                                                    Submit Feedback
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <p class="text-muted">All feedback submitted!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Courses -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-success">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-medal me-2"></i>
+                        Completed Courses
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if completed_enrollments %}
+                        <div class="row">
+                            {% for enrollment in completed_enrollments %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card bg-secondary">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ enrollment.course.name }}</h5>
+                                            <p class="card-text">
+                                                <i class="fas fa-calendar-check me-2"></i>
+                                                Completed: {{ enrollment.completion_date|date:"M d, Y" }}
+                                            </p>
+                                            <div class="d-grid gap-2">
+                                                {% if enrollment.certificate %}
+                                                    <a href="{% url 'download_certificate' enrollment.certificate.id %}" 
+                                                       class="btn btn-success btn-sm">
+                                                        <i class="fas fa-download me-1"></i>
+                                                        Download Certificate
+                                                    </a>
+                                                {% endif %}
+                                                <button class="btn btn-outline-light btn-sm">
+                                                    <i class="fas fa-award me-1"></i>
+                                                    Download Badge
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-hourglass-half fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No completed courses yet. Keep learning!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Course Details Modal -->
+<div class="modal fade" id="courseDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Course Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="courseDetailsContent">
+                <!-- Content loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showCourseDetails(enrollmentId) {
+    $('#courseDetailsModal').modal('show');
+    // Load course details via AJAX
+    // Implementation details...
+}
+</script>
+{% endblock %}
